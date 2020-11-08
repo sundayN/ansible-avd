@@ -1269,6 +1269,10 @@ router_bgp:
 router_multicast:
   ipv4:
     routing: < true | false >
+  vrfs:
+    < vrf_name >:
+      ipv4:
+        routing: < true | false >
 ```
 
 ### Router OSPF Configuration
@@ -1310,6 +1314,14 @@ router_pim_sparse_mode:
         other_anycast_rp_addresses:
           < ip_address_other_anycast_rp_1 >:
             register_count: < register_count_nb >
+  vrfs:
+    < vrf_name >:
+      ipv4:
+        rp_addresses:
+          < rp_address_1 >:
+            groups:
+              < group_prefix_1/mask > :
+              < group_prefix_2/mask > :
 ```
 
 ### Router ISIS Configuration
