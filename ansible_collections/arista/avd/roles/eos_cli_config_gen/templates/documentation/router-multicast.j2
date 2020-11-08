@@ -3,13 +3,20 @@
 {%   if router_multicast.ipv4.routing is defined and router_multicast.ipv4.routing == true %}
 Routing for IPv4 multicast is enabled.
 
+{%   endif %}
+{%   if router_multicast.vrfs is defined and router_multicast.vrfs is not none %}
+Routing for IPv4 multicast is enabled on the following vrfs: 
+{%       for vrf in router_multicast.vrfs | arista.avd.natural_sort %}
+ * {{ vrf }}
+{%       endfor %}
+
+{%    endif %}
 ### Router Multicast Device Configuration
 
 ```eos
 {% include 'eos/router-multicast.j2' %}
 ```
 
-{%   endif %}
 {% else %}
 Routing multicast not defined
 {% endif %}

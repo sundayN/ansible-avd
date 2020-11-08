@@ -9,3 +9,15 @@ router multicast
 {%          endif %}
 {%     endif %}
 {% endif %}
+{% if router_multicast.vrfs is defined and router_multicast.vrfs is not none %}
+{%     for vrf in router_multicast.vrfs | arista.avd.natural_sort %}
+   !
+   vrf {{ vrf }}
+{%             if router_multicast.vrfs[vrf].ipv4 is defined and router_multicast.vrfs[vrf].ipv4 is not none %}
+     ipv4
+{%                 if router_multicast.vrfs[vrf].ipv4.routing is defined and router_multicast.vrfs[vrf].ipv4.routing == true %}
+        routing
+{%                 endif %}
+{%             endif %}
+{%     endfor %}
+{% endif %}
