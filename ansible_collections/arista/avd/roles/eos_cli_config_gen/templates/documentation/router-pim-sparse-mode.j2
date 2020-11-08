@@ -30,12 +30,33 @@
 {%                endfor %}
 {%           endif %}
 
+{%   endif %}
+
+{%   if router_pim_sparse_mode.vrfs is defined and router_pim_sparse_mode.vrfs is not none %}
+{%       for vrf in router_pim_sparse_mode.vrfs | arista.avd.natural_sort %}
+{%           if router_pim_sparse_mode.vrfs[vrf].ipv4 is defined and router_pim_sparse_mode.vrfs[vrf].ipv4 is not none %}
+{%               if router_pim_sparse_mode.vrfs[vrf].ipv4.rp_addresses is defined and router_pim_sparse_mode.vrfs[vrf].ipv4.rp_addresses is not none %}
+
+### IP Rendez-vous Information for vrf={{ vrf }}
+
+| Rendez-vous Point Address | Group Address |
+| ------------------------- | ------------- |
+{%                    for rp_address in router_pim_sparse_mode.vrfs[vrf].ipv4.rp_addresses | arista.avd.natural_sort %}
+{%                        for group in router_pim_sparse_mode.vrfs[vrf].ipv4.rp_addresses[rp_address].groups | arista.avd.natural_sort %}
+| {{ rp_address }} | {{ group }} |
+{%                        endfor %}
+{%                    endfor %}
+{%               endif %}
+{%           endif %}
+{%       endfor %}
+{%   endif %}
+
 ### Router Multicast Device Configuration
 
 ```eos
 {% include 'eos/router-pim-sparse-mode.j2' %}
 ```
-{%   endif %}
+
 {% else %}
 Router PIM sparse mode not defined
 {% endif %}
