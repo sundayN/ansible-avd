@@ -1028,7 +1028,14 @@ router_bgp:
 router_multicast:
   ipv4:
     routing: true
-
+  vrfs:  
+    BLUE:
+      ipv4:
+        routing: true
+    RED:
+      ipv4:
+        routing: true  
+        
 ### Routing - PIM Sparse Mode ###
 router_pim_sparse_mode:
   ipv4:
@@ -1046,6 +1053,23 @@ router_pim_sparse_mode:
         other_anycast_rp_addresses:
           10.50.64.16:
             register_count: 15
+  vrfs:
+    BLUE:
+      ipv4:
+        rp_addresses:
+          10.238.2.161:
+            groups:
+              230.168.64.0/18:
+              231.168.64.0/18:
+              239.168.64.0/18:
+    RED:
+      ipv4:
+        rp_addresses:
+          10.238.3.161:
+            groups:
+              230.168.128.0/18:
+              231.168.128.0/18:
+              239.168.128.0/18:             
 
 ### IP TACACS+ Source Interface ###
 ip_tacacs_source_interfaces:
