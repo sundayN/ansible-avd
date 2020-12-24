@@ -17,11 +17,13 @@
     - [Event Monitor](#event-monitor)
     - [Event Handler](#event-handler)
     - [Load Interval](#load-interval)
+    - [Errdisable](#errdisable)
     - [Service Routing Protocols Model](#service-routing-protocols-model)
     - [Queue Monitor Length](#queue-monitor-length)
     - [LLDP](#lldp)
     - [Logging](#logging)
     - [Domain Lookup](#domain-lookup)
+    - [Domain-List](#domain-list)
     - [Name Servers](#name-servers)
     - [DNS Domain](#dns-domain)
     - [NTP Servers](#ntp-servers)
@@ -30,6 +32,7 @@
     - [Sflow](#sflow)
     - [Redundancy](#redundancy)
     - [SNMP Settings](#snmp-settings)
+    - [Speed-Group Settings](#speed-group-settings)
     - [Spanning Tree](#spanning-tree)
     - [Platform](#platform)
     - [Tacacs+ Servers](#tacacs-servers)
@@ -51,6 +54,7 @@
     - [VxLAN Interface](#vxlan-interface)
     - [Hardware TCAM Profiles](#hardware-tcam-profiles)
     - [MAC Address-table](#mac-address-table)
+    - [MACsec](#macsec)
     - [Router Virtual MAC Address](#router-virtual-mac-address)
     - [Virtual Source NAT](#virtual-source-nat)
     - [IPv6 Extended Access-Lists](#ipv6-extended-access-lists)
@@ -60,11 +64,13 @@
     - [Static Routes](#static-routes)
     - [IPv6 Static Routes](#ipv6-static-routes)
     - [IP Routing](#ip-routing)
+    - [ARP](#arp)
     - [Prefix Lists](#prefix-lists)
     - [IPv6 Prefix Lists](#ipv6-prefix-lists)
     - [IPv6 Routing](#ipv6-routing)
     - [MLAG Configuration](#mlag-configuration)
     - [Community Lists](#community-lists)
+    - [IP Extended Community Lists](#ip-extended-community-lists)
     - [Route Maps](#route-maps)
     - [Peer Filters](#peer-filters)
     - [Router BGP Configuration](#router-bgp-configuration)
@@ -77,9 +83,12 @@
     - [VM Tracer Sessions](#vm-tracer-sessions)
     - [Banners](#banners)
     - [HTTP Management API](#http-management-api)
+    - [GNMI Management API](#gnmi-management-api)
     - [Management Console](#management-console)
     - [Management Security](#management-security)
     - [Management SSH](#management-ssh)
+    - [PTP](#ptp)
+    - [Custom Templates](#custom-templates)
   - [License](#license)
 
 ## Overview
@@ -162,8 +171,10 @@ daemon_terminattr:
   ingestvrf: < vrf_name >
   smashexcludes: "< list as string >"
   ingestexclude: "< list as string >"
-
+  disable_aaa: < false | true >
 ```
+
+You can either provide a list of IPs to target on-premise Cloudvision cluster or either use DNS name for your Cloudvision as a Service instance. If you have both on-prem and CVaaS defined, only on-prem is going to be configured.
 
 ### IP DHCP Relay
 
@@ -187,10 +198,13 @@ vlan_internal_allocation_policy:
 
 ```yaml
 ip_igmp_snooping:
+  globally_enabled: < true | false (default is true) >
   vlans:
     < vlan_id >:
       enabled: < true | false >
 ```
+
+`globally_enabled` allows to activate or deactivate IGMP snooping for all vlans where `vlans` allows user to activate / deactivate IGMP snooping per vlan.
 
 ### Event Monitor
 
@@ -219,6 +233,41 @@ event_handlers:
 load_interval:
   default: < seconds >
 
+```
+
+### Errdisable
+
+```yaml
+errdisable:
+  detect:
+    causes:
+      - acl
+      - arp-inspection
+      - dot1x
+      - link-change
+      - tapagg
+      - xcvr-misconfigured
+      - xcvr-overheat
+      - xcvr-power-unsupported
+  recovery:
+    causes:
+      - arp-inspection
+      - bpduguard
+      - dot1x
+      - hitless-reload-down
+      - lacp-rate-limit
+      - link-flap
+      - no-internal-vlan
+      - portchannelguard
+      - portsec
+      - speed-misconfigured
+      - tapagg
+      - uplink-failure-detection
+      - xcvr-misconfigured
+      - xcvr-overheat
+      - xcvr-power-unsupported
+      - xcvr-unsupported
+    interval: < seconds | default = 300 >
 ```
 
 ### Service Routing Protocols Model
@@ -276,6 +325,14 @@ ip_domain_lookup:
   source_interfaces:
     < source_interface_1 >:
       vrf: < vrf_name >
+```
+
+### Domain-List
+
+```yaml
+domain_list:
+  - < domain_name_1 >
+  - < domain_name_2 >
 ```
 
 ### Name Servers
@@ -364,6 +421,8 @@ Redundancy:
 snmp_server:
   contact: < contact_name >
   location: < location >
+  ipv4_access_list: < ipv4-access-list >
+  ipv6_access_list: < ipv6-access-list >
   local_interfaces:
     - name: < interface_name_1 >
       vrf: < vrf_name >
@@ -419,6 +478,18 @@ snmp_server:
       enable: < true | false >
 ```
 
+### Speed-Group Settings
+
+```yaml
+hardware:
+  speed_groups:
+    1:
+      serdes: <10g | 25g>
+    2:
+      serdes: <10g | 25g>
+    ...
+```
+
 ### Spanning Tree
 
 ```yaml
@@ -436,6 +507,10 @@ spanning_tree:
 platform:
   trident:
     forwarding_table_partition: < partition >
+  sand:
+    lag:
+      hardware_only: < true | false >
+      mode: < mode | default -> 1024x16 >
 ```
 
 ### Tacacs+ Servers
@@ -586,6 +661,8 @@ port_channel_interfaces:
     trunk_groups:
       - < trunk_group_name_1 >
       - < trunk_group_name_2 >
+    lacp_fallback_timeout: <timeout in seconds, 0-300 (default 90) >
+    lacp_fallback_mode: < individual | static >
     qos:
       trust: < cos | dscp >
   < Port-Channel_interface_2 >:
@@ -641,6 +718,9 @@ ethernet_interfaces:
     type: < routed | switched >
     vrf: < vrf_name >
     ip_address: < IPv4_address/Mask >
+    ip_address_secondaries:
+      - < IPv4_address/Mask >
+      - < IPv4_address/Mask >
     ipv6_enable: < true | false >
     ipv6_address: < IPv6_address/Mask >
     ipv6_address_link_local: < link_local_IPv6_address/Mask >
@@ -658,6 +738,7 @@ ethernet_interfaces:
     ipv6_access_group_out: < ipv6_access_list_name >
     ospf_network_point_to_point: < true | false >
     ospf_area: < ospf_area >
+    ospf_cost: < ospf_cost >
     ospf_authentication: < none | simple | message-digest >
     ospf_authentication_key: "< encrypted_password >"
     ospf_message_digest_keys:
@@ -667,10 +748,14 @@ ethernet_interfaces:
     pim:
       ipv4:
         sparse_mode: < true | false >
+    mac_security:
+      profile: < profile >
     isis_enable: < ISIS Instance >
     isis_passive: < boolean >
     isis_metric: < integer >
     isis_network_point_to_point: < boolean >
+    ptp:
+      enable: < true | false >
 
 # Switched Interfaces
   <Ethernet_interface_2 >:
@@ -692,6 +777,23 @@ ethernet_interfaces:
     spanning_tree_bpduguard: < true | false >
     spanning_tree_portfast: < edge | network >
     vmtracer: < true | false >
+    ptp:
+      enable: < true | false >
+    mac_security:
+      profile: < profile >
+    storm_control:
+      all:
+        level: < Configure maximum storm-control level >
+        unit: < percent* | pps (optional and is hardware dependant - default is percent)>
+      broadcast:
+        level: < Configure maximum storm-control level >
+        unit: < percent* | pps (optional and is hardware dependant - default is percent)>
+      multicast:
+        level: < Configure maximum storm-control level >
+        unit: < percent* | pps (optional and is hardware dependant - default is percent) >
+      unknown_unicast:
+        level: < Configure maximum storm-control level >
+        unit: < percent* | pps (optional and is hardware dependant - default is percent)>
 ```
 
 ### Loopback Interfaces
@@ -703,6 +805,9 @@ loopback_interfaces:
     shutdown: < true | false >
     vrf: < vrf_name >
     ip_address: < IPv4_address/Mask >
+    ip_address_secondaries:
+      - < IPv4_address/Mask >
+      - < IPv4_address/Mask >
     ipv6_enable: < true | false >
     ipv6_address: < IPv6_address/Mask >
     ospf_area: < ospf_area >
@@ -737,10 +842,12 @@ vlan_interfaces:
     description: < description >
     shutdown: < true | false >
     vrf: < vrf_name >
+    arp_aging_timeout: < arp_timeout >
     ip_address: < IPv4_address/Mask >
-    ip_address_secondary: < IPv4_address/Mask >
+    ip_address_secondaries:
+      - < IPv4_address/Mask >
+      - < IPv4_address/Mask >
     ip_router_virtual_address: < IPv4_address >
-    ip_router_virtual_address_secondary: < IPv4_address >
     ip_address_virtual: < IPv4_address/Mask >
     ip_helpers:
       < ip_helper_address_1 >:
@@ -770,6 +877,7 @@ vlan_interfaces:
           administrative_distance: < 1-255 >
     ospf_network_point_to_point: < true | false >
     ospf_area: < ospf_area >
+    ospf_cost: < ospf_cost >
     ospf_authentication: < none | simple | message-digest >
     ospf_authentication_key: "< encrypted_password >"
     ospf_message_digest_keys:
@@ -833,6 +941,23 @@ tcam_profile:
 ```yaml
 mac_address_table:
   aging_time: < aging_time_in_seconds >
+```
+
+### MACsec
+
+```yaml
+mac_security:
+  license:
+    license_name: < license-name >
+    license_key: < license-number >
+  fips_restrictions: < true | false >
+  profiles:
+    < profile >:
+      cipher: < valid-cipher-string >
+      connection_keys:
+        < connection_key >:
+          encrypted_key: < encrypted_key >
+          fallback: < true | false -> default >
 ```
 
 ### Router Virtual MAC Address
@@ -926,6 +1051,7 @@ static_routes:
     distance: < 1-255 >
     tag: < 0-4294967295 >
     name: < description >
+    metric: < 0-4294967295 >
   - destination_address_prefix: < IPv4_network/Mask >
     gateway: < IPv4_address >
 ```
@@ -941,6 +1067,7 @@ ipv6_static_routes:
     distance: < 1-255 >
     tag: < 0-4294967295 >
     name: < description >
+    metric: < 0-4294967295 >
   - destination_address_prefix: < IPv6_network/Mask >
     gateway: < IPv6_address >
 ```
@@ -949,6 +1076,13 @@ ipv6_static_routes:
 
 ```yaml
 ip_routing: < true | false >
+```
+### ARP
+
+```yaml
+arp:
+  aging:
+    timeout_default: < timeout-in-seconds >
 ```
 
 ### Prefix Lists
@@ -1013,6 +1147,18 @@ community_lists:
     action: "< action as string >"
   < community_list_name_2 >:
     action: "< action as string >"
+```
+
+### IP Extended Community Lists
+
+```yaml
+ip_extcommunity_lists:
+  < community_list_name_1 >:
+    - type: < permit | deny >
+      extcommunities: "< communities as string >"
+  < community_list_name_2 >:
+    - type: < permit | deny >
+      extcommunities: "< communities as string >"
 ```
 
 ### Route Maps
@@ -1106,6 +1252,16 @@ router_bgp:
       password: "< encrypted_password >"
     < IPv6_address_1 >:
       remote_as: < bgp_as >
+  aggregate_addresses:
+    < aggregate_address_1/mask >:
+      advertise_only: < true | false >
+    < aggregate_address_2/mask >:
+    < aggregate_address_3/mask >:
+      as_set: < true | false >
+      summary_only: < true | false >
+      attribute_map: < route_map_name >
+      match_map: < route_map_name >
+      advertise_only: < true | false >
   redistribute_routes:
     < route_type >:
       route_map: < route_map_name >
@@ -1166,6 +1322,8 @@ router_bgp:
     peer_groups:
       < peer_group_name >:
         activate: < true | false >
+        route_map_in: < route_map_name >
+        route_map_out: < route_map_name >
   address_family_ipv4:
     networks:
       < prefix_ipv4 >:
@@ -1181,6 +1339,8 @@ router_bgp:
         prefix_list_out: < prefix_list_name >
     neighbors:
       < neighbor_ip_address>:
+        route_map_in: < route_map_name >
+        route_map_out: < route_map_name >
         activate: < true | false >
         prefix_list_in: < prefix_list_name >
         prefix_list_out: < prefix_list_name >
@@ -1382,7 +1542,17 @@ management_api_http:
       ipv6_access_group: < Standard IPv6 ACL name >
     < vrf_name_2 >:
 ```
+### GNMI Management API
 
+```yaml
+management_api_gnmi:
+  enable_vrfs:
+    < vrf_name_1 >:
+      access_group: < Standard IPv4 ACL name >
+    < vrf_name_2 >:
+      access_group: < Standard IPv4 ACL name >
+  octa:
+```
 ### Management Console
 
 ```yaml
@@ -1396,6 +1566,7 @@ management_console:
 management_security:
   password:
     encryption_key_common : < true | false >
+  entropy_source: < entropy_source >
 ```
 
 ### Management SSH
@@ -1417,6 +1588,29 @@ management_ssh:
       enable: < true | false >
     < vrf_name_2 >:
       enable: < true | false >
+```
+### PTP
+
+```yaml
+ptp:
+  clock_identity: < clock-id >
+  source:
+    ip: < source-ip>
+  priority1: < priority1 >
+  priority2: < priority2 >
+  ttl: < ttl >
+  message_type:
+    general:
+      dscp: < dscp-value >
+    event:
+      dscp: < dscp-Value >
+```
+### Custom Templates
+
+```yaml
+custom_templates:
+  - < template 1 relative path below playbook directory >
+  - < template 2 relative path below playbook directory >
 ```
 
 ## License
