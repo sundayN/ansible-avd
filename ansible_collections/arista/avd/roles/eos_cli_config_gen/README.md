@@ -820,12 +820,24 @@ loopback_interfaces:
     isis_network_point_to_point: < boolean >
 ```
 
+### Interface Defaults
+
+```yaml
+interface_defaults:
+  ethernet:
+    shutdown: < true | false >
+  mtu: < mtu >
+  switchport:
+    type: < routed | switched >
+```
+
 ### Management Interfaces
 
 ```yaml
 management_interfaces:
   < Management_interface_1 >:
     description: < description >
+    shutdown: < true | false >
     vrf: < vrf_name >
     ip_address: < IPv4_address/Mask >
     ipv6_enable: < true | false >
@@ -901,6 +913,8 @@ vlan_interfaces:
       preempt_delay_minimum: < minimum_preemption_delay >
       ipv4: < virtual_ip_address >
       ipv6: < virtual_ip_address >
+    ip_attached_host_route_export:
+      distance: < distance >
 < Vlan_id_2 >:
     description: < description >
     ip_address: < IPv4_address/Mask >
@@ -1441,6 +1455,7 @@ router_multicast:
 router_ospf:
   process_ids:
     < process_id >:
+      vrf: < vrf_name_for_process_id >
       passive_interface_default: < true | false >
       router_id: < IPv4_address >
       log_adjacency_changes_detail: < true | false >

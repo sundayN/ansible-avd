@@ -35,6 +35,7 @@
 - [Internal VLAN Allocation Policy](#internal-vlan-allocation-policy)
 - [VLANs](#vlans)
 - [Interfaces](#interfaces)
+  - [Interface Defaults](#internet-defaults)
   - [Ethernet Interfaces](#ethernet-interfaces)
   - [Port-Channel Interfaces](#port-channel-interfaces)
   - [Loopback Interfaces](#loopback-interfaces)
@@ -244,6 +245,10 @@ No VLANs defined
 
 # Interfaces
 
+## Interface Defaults
+
+No Interface Defaults defined
+
 ## Ethernet Interfaces
 
 ### Ethernet Interfaces Summary
@@ -261,6 +266,7 @@ No VLANs defined
 ```eos
 !
 interface Ethernet1
+   switchport
    ip address 1.1.1.1/24
    mac security profile A1
 ```
@@ -273,7 +279,7 @@ interface Ethernet1
 
 | Interface | Description | Type | Mode | VLANs | Native VLAN | Trunk Group | LACP Fallback Timeout | LACP Fallback Mode | MLAG ID | EVPN ESI |
 | --------- | ----------- | ---- | ---- | ----- | ----------- | ------------| --------------------- | ------------------ | ------- | -------- |
-| Port-Channel3 | L2-PORT | switched | access | 1-5 | - | - | - | - | - | - |
+| Port-Channel3 | L2-PORT | switched | trunk | 1-5 | - | - | - | - | - | - |
 
 ### Port-Channel Interfaces Device Configuration
 
@@ -281,6 +287,7 @@ interface Ethernet1
 !
 interface Port-Channel3
    description L2-PORT
+   switchport
    switchport trunk allowed vlan 1-5
    switchport mode trunk
 ```
