@@ -35,6 +35,7 @@
 - [Internal VLAN Allocation Policy](#internal-vlan-allocation-policy)
 - [VLANs](#vlans)
 - [Interfaces](#interfaces)
+  - [Interface Defaults](#internet-defaults)
   - [Ethernet Interfaces](#ethernet-interfaces)
   - [Port-Channel Interfaces](#port-channel-interfaces)
   - [Loopback Interfaces](#loopback-interfaces)
@@ -233,6 +234,10 @@ No VLANs defined
 
 # Interfaces
 
+## Interface Defaults
+
+No Interface Defaults defined
+
 ## Ethernet Interfaces
 
 ### Ethernet Interfaces Summary
@@ -263,6 +268,7 @@ interface Ethernet1
 !
 interface Ethernet2
    description SRV-POD02_Eth1
+   switchport
    switchport trunk allowed vlan 110-111,210-211
    switchport mode trunk
    storm-control all level 10
@@ -271,6 +277,7 @@ interface Ethernet2
 !
 interface Ethernet6
    description SRV-POD02_Eth1
+   switchport
    switchport trunk allowed vlan 110-111,210-211
    switchport mode trunk
 ```
