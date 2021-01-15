@@ -13,6 +13,7 @@
   - [Management API](#Management-api-http)
 - [Authentication](#authentication)
   - [Local Users](#local-users)
+  - [Enable Password](#enable-password)
   - [TACACS Servers](#tacacs-servers)
   - [IP TACACS Source Interfaces](#ip-tacacs-source-interfaces)
   - [RADIUS Servers](#radius-servers)
@@ -35,7 +36,7 @@
 - [Internal VLAN Allocation Policy](#internal-vlan-allocation-policy)
 - [VLANs](#vlans)
 - [Interfaces](#interfaces)
-  - [Interface Defaults](#internet-defaults)
+  - [Interface Defaults](#interface-defaults)
   - [Ethernet Interfaces](#ethernet-interfaces)
   - [Port-Channel Interfaces](#port-channel-interfaces)
   - [Loopback Interfaces](#loopback-interfaces)
@@ -47,6 +48,7 @@
   - [IPv6 Routing](#ipv6-routing)
   - [Static Routes](#static-routes)
   - [IPv6 Static Routes](#ipv6-static-routes)
+  - [Router OSPF](#router-ospf)
   - [Router ISIS](#router-isis)
   - [Router BGP](#router-bgp)
   - [Router BFD](#router-bfd)
@@ -73,6 +75,8 @@
 - [IP DHCP Relay](#ip-dhcp-relay)
 - [Errdisable](#errdisable)
 - [MAC security](#mac-security)
+- [QOS](#qos)
+- [QOS Profiles](#qos-profiles)
 
 # Management
 
@@ -143,6 +147,10 @@ Management API HTTP not defined
 ## Local Users
 
 No users defined
+
+## Enable Password
+
+Enable password not defined
 
 ## TACACS Servers
 
@@ -258,6 +266,7 @@ No Interface Defaults defined
 | Interface | Description | Mode | VLANs | Native VLAN | Trunk Group | Channel-Group |
 | --------- | ----------- | ---- | ----- | ----------- | ----------- | ------------- |
 | Ethernet1 |  - | routed | - | - | - | - |
+| Ethernet3 | DC1-AGG01_Ethernet1 | *trunk | *1-5 | *- | *- | 3 |
 
 *Inherited from Port-Channel Interface
 
@@ -266,9 +275,14 @@ No Interface Defaults defined
 ```eos
 !
 interface Ethernet1
+   mac security profile A1
    switchport
    ip address 1.1.1.1/24
+!
+interface Ethernet3
+   description DC1-AGG01_Ethernet1
    mac security profile A1
+   channel-group 3 mode active
 ```
 
 ## Port-Channel Interfaces
@@ -316,7 +330,7 @@ IP virtual router MAC address not defined
 
 | VRF | Routing Enabled |
 | --- | --------------- |
-| default | false| 
+| default | false|
 ### IP Routing Device Configuration
 
 ```eos
@@ -341,6 +355,10 @@ IPv6 static routes not defined
 ## ARP
 
 Global ARP timeout not defined.
+
+## Router OSPF
+
+Router OSPF not defined
 
 ## Router ISIS
 
@@ -441,6 +459,7 @@ IP DHCP relay not defined
 # Errdisable
 
 Errdisable is not defined.
+
 # MACsec
 
 ### MACsec Summary
@@ -497,6 +516,14 @@ mac security
    profile A2
       key 1234b 7 12485744465E5A53
 ```
+
+# QOS
+
+QOS is not defined.
+
+# QOS Profiles
+
+QOS Profiles are not defined
 
 # Custom Templates
 

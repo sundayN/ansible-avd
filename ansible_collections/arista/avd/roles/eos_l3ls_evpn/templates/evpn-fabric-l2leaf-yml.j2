@@ -66,7 +66,7 @@
 {%                 elif l2leaf.defaults.mlag_dual_primary_detection is defined %}
 {%                     set leaf.mlag_dual_primary_detection = l2leaf.defaults.mlag_dual_primary_detection %}
 {%                 else %}
-{%                     set leaf.mlag_dual_primary_detection = true %}
+{%                     set leaf.mlag_dual_primary_detection = false %}
 {%                 endif %}
 {%                 if l2leaf.node_groups[l2leaf_node_group].mlag_interfaces is defined %}
 {%                     set leaf.mlag_interfaces = l2leaf.node_groups[l2leaf_node_group].mlag_interfaces %}
@@ -305,6 +305,11 @@ vlan_interfaces:
 ### TCAM Profiles ###
 tcam_profile:
 {% include 'base/tcam-profile.j2' %}
+
+{# Platform #}
+### Platform ###
+platform:
+{% include 'base/platform.j2' %}
 
 {# mac address-table #}
 ### MAC address table ###

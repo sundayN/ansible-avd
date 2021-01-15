@@ -13,6 +13,7 @@
   - [Management API](#Management-api-http)
 - [Authentication](#authentication)
   - [Local Users](#local-users)
+  - [Enable Password](#enable-password)
   - [TACACS Servers](#tacacs-servers)
   - [IP TACACS Source Interfaces](#ip-tacacs-source-interfaces)
   - [RADIUS Servers](#radius-servers)
@@ -35,7 +36,7 @@
 - [Internal VLAN Allocation Policy](#internal-vlan-allocation-policy)
 - [VLANs](#vlans)
 - [Interfaces](#interfaces)
-  - [Interface Defaults](#internet-defaults)
+  - [Interface Defaults](#interface-defaults)
   - [Ethernet Interfaces](#ethernet-interfaces)
   - [Port-Channel Interfaces](#port-channel-interfaces)
   - [Loopback Interfaces](#loopback-interfaces)
@@ -47,6 +48,7 @@
   - [IPv6 Routing](#ipv6-routing)
   - [Static Routes](#static-routes)
   - [IPv6 Static Routes](#ipv6-static-routes)
+  - [Router OSPF](#router-ospf)
   - [Router ISIS](#router-isis)
   - [Router BGP](#router-bgp)
   - [Router BFD](#router-bfd)
@@ -73,6 +75,8 @@
 - [IP DHCP Relay](#ip-dhcp-relay)
 - [Errdisable](#errdisable)
 - [MAC security](#mac-security)
+- [QOS](#qos)
+- [QOS Profiles](#qos-profiles)
 
 # Management
 
@@ -144,6 +148,10 @@ Management API HTTP not defined
 
 No users defined
 
+## Enable Password
+
+Enable password not defined
+
 ## TACACS Servers
 
 TACACS servers not defined
@@ -202,7 +210,9 @@ No logging settings defined
 
 | Local Interface | VRF |
 | --------------- | --- |
-| Management0 | mgt |
+| Management1 | MGMT |
+| Loopback0 | default |
+| Loopback12 | Tenant_A_APP_Zone |
 
 ### SNMP VRF Status
 
@@ -221,19 +231,19 @@ No logging settings defined
 
 ### SNMP Views Configuration
 
-| View | MIB Family Name | Status |  
-| ---- | --------------- | ------ | 
+| View | MIB Family Name | Status |
+| ---- | --------------- | ------ |
 | VW-WRITE | iso |  Included | VW-READ | iso |  Included 
 ### SNMP Groups Configuration
 
-| Group | SNMP Version | Authentication | Read | Write | Notify |  
+| Group | SNMP Version | Authentication | Read | Write | Notify |
 | ----- | ------------ | -------------- | ---- | ----- | ------ |
 | GRP-READ-ONLY | v3 | priv | v3read | - | - |
 | GRP-READ-WRITE | v3 | auth | v3read | v3write | - |
 
 ### SNMP Users Configuration
 
-| User | Group | Version | Authentication | Privacy | 
+| User | Group | Version | Authentication | Privacy |
 | ---- | ----- | ------- | -------------- | ------- |
 | USER-READ | GRP-READ-ONLY | v3 | sha | aes |
 | USER-WRITE | GRP-READ-WRITE | v3 | sha | aes |
@@ -247,7 +257,9 @@ snmp-server contact DC1_OPS
 snmp-server location DC1
 snmp-server ipv4 access-list onur
 snmp-server ipv6 access-list onurv6
-snmp-server vrf mgt local-interface Management0
+snmp-server vrf MGMT local-interface Management1
+snmp-server local-interface Loopback0
+snmp-server vrf Tenant_A_APP_Zone local-interface Loopback12
 snmp-server view VW-WRITE iso included
 snmp-server view VW-READ iso included
 snmp-server group GRP-READ-ONLY v3  priv read v3read 
@@ -338,7 +350,7 @@ IP virtual router MAC address not defined
 
 | VRF | Routing Enabled |
 | --- | --------------- |
-| default | false| 
+| default | false|
 ### IP Routing Device Configuration
 
 ```eos
@@ -363,6 +375,10 @@ IPv6 static routes not defined
 ## ARP
 
 Global ARP timeout not defined.
+
+## Router OSPF
+
+Router OSPF not defined
 
 ## Router ISIS
 
@@ -463,9 +479,18 @@ IP DHCP relay not defined
 # Errdisable
 
 Errdisable is not defined.
+
 # MACsec
 
 MACsec not defined
+
+# QOS
+
+QOS is not defined.
+
+# QOS Profiles
+
+QOS Profiles are not defined
 
 # Custom Templates
 

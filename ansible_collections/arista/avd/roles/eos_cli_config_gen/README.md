@@ -42,6 +42,7 @@
     - [AAA Accounting](#aaa-accounting)
     - [AAA Root](#aaa-root)
     - [Local Users](#local-users)
+    - [Enable Password](#enable-password)
     - [Clock Timezone](#clock-timezone)
     - [VLANs](#vlans)
     - [VRF Instances](#vrf-instances)
@@ -49,6 +50,7 @@
     - [Port-Channel Interfaces](#port-channel-interfaces)
     - [Ethernet Interfaces](#ethernet-interfaces)
     - [Loopback Interfaces](#loopback-interfaces)
+    - [Interface Defaults](#interface-defaults)
     - [Management Interfaces](#management-interfaces)
     - [VLAN Interfaces](#vlan-interfaces)
     - [VxLAN Interface](#vxlan-interface)
@@ -87,6 +89,8 @@
     - [Management Console](#management-console)
     - [Management Security](#management-security)
     - [Management SSH](#management-ssh)
+    - [QOS](#qos)
+    - [QOS Profiles](#qos-profiles)
     - [PTP](#ptp)
     - [Custom Templates](#custom-templates)
   - [License](#license)
@@ -424,9 +428,11 @@ snmp_server:
   ipv4_access_list: < ipv4-access-list >
   ipv6_access_list: < ipv6-access-list >
   local_interfaces:
-    - name: < interface_name_1 >
+    < interface_name_1 >:
       vrf: < vrf_name >
-    - name: < interface_name_2 >
+    < interface_name_2 >:
+    < interface_name_3 >:
+      vrf: < vrf_name >
   views:
     - name: < view_name >
       MIB_family_name: < MIB_family_name >
@@ -496,9 +502,26 @@ hardware:
 spanning_tree:
   edge_port:
     bpduguard_default: < true | false >
-  mode: < spanning_tree_mode >
-  priority: < priority_level >
-  no_spanning_tree_vlan: < vlan_id >, < vlan_id >-< vlan_id >
+  mode: < mstp | rstp | rapid-pvst | none >
+  rstp_priority: < priority >
+  mst:
+    pvst_border: < true | false >
+    configuration:
+      name: < name >
+      revision: < 0-65535 >
+      instances:
+        "< instance_id >": "< vlan_id >, < vlan_id >-< vlan_id >"
+  mst_instances:
+    "< instance_id >":
+      priority: < priority >
+    "< instance_id >":
+      priority: < priority >
+  no_spanning_tree_vlan: "< vlan_id >, < vlan_id >-< vlan_id >"
+  rapid_pvst_instances:
+    "< vlan_id >":
+      priority: < priority >
+    "< vlan_id >, < vlan_id >-< vlan_id >":
+      priority: < priority >
 ```
 
 ### Platform
@@ -523,6 +546,7 @@ tacacs_servers:
       key: < encypted_key >
     - host: < host2_ip_address >
       key: < encypted_key >
+  policy_unknown_mandatory_attribute_ignore: < true | false >
 ```
 
 ### AAA Server Groups
@@ -547,18 +571,27 @@ aaa_server_groups:
 ```yaml
 aaa_authentication:
   login:
-    default: < group | local | none >
-    serial_console: < group | local | none >
+    default: < group group_name | local | none > < group group_name | local | none >
+    serial_console: < group group_name | local | none > < group group_name | local | none >
   dot1x:
-    default: < group | local | none >
+    default: < group group_name >
+  policies:
+    on_failure_log: < true | false >
+    on_success_log: < true | false >
+    local:
+      allow_nopassword: < false | true >
 ```
 
 ### AAA Authorization
 
 ```yaml
 aaa_authorization:
-  exec_default: < group | local | none >
+  exec:
+    default: < group group_name | local | none > < group group_name | local | none >
   config_commands: < true | false >
+  serial_console: < true | false >
+  commands:
+    all_default: < group group_name | local | none > < group group_name | local | none >
 ```
 
 ### AAA Accounting
@@ -577,6 +610,7 @@ aaa_accounting:
         logging: < true | false >
       - commands: < all | 0-15 >
         type: < none | start-stop | stop-only >
+        group: < group_name >
         logging: < true | false >
 ```
 
@@ -602,6 +636,14 @@ local_users:
     role: < role >
     sha512_password: "< sha_512_password >"
     no_password: < true | do not configure a password for given username. sha512_password MUST not be defined for this user. >
+```
+
+### Enable Password
+
+```yaml
+enable_password:
+  hash_algorithm: < md5 | sha512 >
+  key: "< hashed_password >"
 ```
 
 ### Clock Timezone
@@ -664,7 +706,9 @@ port_channel_interfaces:
     lacp_fallback_timeout: <timeout in seconds, 0-300 (default 90) >
     lacp_fallback_mode: < individual | static >
     qos:
-      trust: < cos | dscp >
+      trust: < dscp | cos >
+      dscp: < dscp-value >
+      cos: < cos-value >
   < Port-Channel_interface_2 >:
     description: < description >
     vlans: "< list of vlans as string >"
@@ -703,6 +747,7 @@ port_channel_interfaces:
     pim:
       ipv4:
         sparse_mode: < true | false >
+    service_profile: < qos_profile >
 ```
 
 ### Ethernet Interfaces
@@ -713,7 +758,7 @@ ethernet_interfaces:
   <Ethernet_interface_1 >:
     description: < description >
     shutdown: < true | false >
-    speed: < interface_speed >
+    speed: < interface_speed | forced interface_speed | auto interface_speed >
     mtu: < mtu >
     type: < routed | switched >
     vrf: < vrf_name >
@@ -756,31 +801,42 @@ ethernet_interfaces:
     isis_network_point_to_point: < boolean >
     ptp:
       enable: < true | false >
+    logging:
+      event:
+        link_status: < true | false >
+    service_profile: < qos_profile >
+    qos:
+      trust: < dscp | cos >
+      dscp: < dscp-value >
+      cos: < cos-value >
 
 # Switched Interfaces
   <Ethernet_interface_2 >:
     description: < description >
     shutdown: < true | false >
-    speed: < interface_speed >
+    speed: < interface_speed | forced interface_speed | auto interface_speed >
     mtu: < mtu >
     vlans: "< list of vlans as string >"
     native_vlan: <native vlan number>
     mode: < access | dot1q-tunnel | trunk >
     flowcontrol:
       received: < received | send | on >
+    mac_security:
+      profile: < profile >
     channel_group:
       id: < Port-Channel_id >
       mode: < on | active | passive >
     qos:
-      trust: < cos | dscp >
+      trust: < dscp | cos >
+      dscp: < dscp-value >
+      cos: < cos-value >
     spanning_tree_bpdufilter: < true | false >
     spanning_tree_bpduguard: < true | false >
     spanning_tree_portfast: < edge | network >
     vmtracer: < true | false >
     ptp:
       enable: < true | false >
-    mac_security:
-      profile: < profile >
+    service_profile: < qos_profile >
     storm_control:
       all:
         level: < Configure maximum storm-control level >
@@ -1244,6 +1300,8 @@ router_bgp:
       maximum_routes: < integer >
       weight: < weight_value >
       timers: < keepalive_hold_timer_values >
+      route_map_in: < inbound route-map >
+      route_map_out: < outbound route-map >
     < peer_group_name_2 >:
       type: < ipv4 | evpn >
       bgp_listen_range_prefix: < IP prefix range >
@@ -1338,6 +1396,13 @@ router_bgp:
         activate: < true | false >
         route_map_in: < route_map_name >
         route_map_out: < route_map_name >
+  address_family_rtc:
+    peer_groups:
+      < peer_group_name >:
+        activate: < true | false >
+        default_route_target:
+          only: < true | false >
+          encoding_origin_as_omit:
   address_family_ipv4:
     networks:
       < prefix_ipv4 >:
@@ -1406,16 +1471,41 @@ router_bgp:
           < address_family >:
             - "< route_target >"
             - "< route_target >"
-        neighbors:
-          < neighbor_ip_address >:
-            remote_as: < asn >
-          < neighbor_ip_address >:
-            remote_as: < asn >
+      timers: < keepalive_hold_timer_values >
+      networks:
+        < prefix_ipv4 >:
+          route_map: < route_map_name >
+      neighbors:
+        < neighbor_ip_address >:
+          remote_as: < asn >
+          description: < description >
+          next_hop_self: < true | false >
+          timers: < keepalive_hold_timer_values >
+          send_community: < string | leave empty for all communities >
+          default_originate:
+            always: < true | false >
+            route_map: < route_map_name >
+        < neighbor_ip_address >:
+          remote_as: < asn >
+          description: < description >
+          next_hop_self: < true | false >
+          timers: < keepalive_hold_timer_values >
+          send_community: < string | leave empty for all communities >
       redistribute_routes:
         < route_type >:
           route_map: < route_map_name >
         < route_type >:
           route_map: < route_map_name >
+      aggregate_addresses:
+        < aggregate_address_1/mask >:
+          advertise_only: < true | false >
+        < aggregate_address_2/mask >:
+        < aggregate_address_3/mask >:
+          as_set: < true | false >
+          summary_only: < true | false >
+          attribute_map: < route_map_name >
+          match_map: < route_map_name >
+          advertise_only: < true | false >
     < vrf_name_2 >:
       rd: "<route distinguisher >"
       route_targets:
@@ -1603,6 +1693,50 @@ management_ssh:
       enable: < true | false >
     < vrf_name_2 >:
       enable: < true | false >
+```
+### QOS
+
+```yaml
+qos:
+  map:
+    cos:
+      - "< cos_mapping_to_tc >"
+      - "< cos_mapping_to_tc >"
+    dscp:
+      - "< dscp_mapping_to_tc >"
+      - "< dscp_mapping_to_tc >"
+    traffic_class:
+      - "< tc_mapping_to_cos >"
+      - "< tc_mapping_to_dscp >"
+      - "< tc_mapping_to_tx_queue >"
+  rewrite_dscp: < true | false >
+```
+### QOS Profiles
+
+```yaml
+qos_profiles:
+  < profile-1 >:
+    trust: < dscp | cos >
+    cos: < cos-value >
+    dscp: < dscp-value >
+    tx-queues:
+      < tx-queue-id >:
+        bandwidth_percent: < value >
+        priority: < string >
+      < tx-queue-id >:
+        bandwidth_percent: < value >
+        priority: < string >
+  < profile-2 >:
+    trust: < dscp | cos >
+    cos: < cos-value >
+    dscp: < dscp-value >
+    tx-queues:
+      < tx-queue-id >:
+        bandwidth_percent: < value >
+        priority: < string >
+      < tx-queue-id >:
+        bandwidth_percent: < value >
+        priority: < string >
 ```
 ### PTP
 

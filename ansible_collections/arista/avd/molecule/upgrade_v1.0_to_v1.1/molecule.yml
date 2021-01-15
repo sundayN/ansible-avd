@@ -4,17 +4,18 @@ scenario:
     - syntax
     - create
     - converge
-    - verify
+    # - verify
   test_sequence:
     - syntax
     - create
     - converge
     - idempotence
     - verify
+    - cleanup
 dependency:
   name: galaxy
 driver:
-  name: docker
+  name: delegated
 platforms:
   - name: DC1-LEAF1A
     image: avdteam/base:3.6

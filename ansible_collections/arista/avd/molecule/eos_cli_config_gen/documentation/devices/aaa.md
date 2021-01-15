@@ -13,6 +13,7 @@
   - [Management API](#Management-api-http)
 - [Authentication](#authentication)
   - [Local Users](#local-users)
+  - [Enable Password](#enable-password)
   - [TACACS Servers](#tacacs-servers)
   - [IP TACACS Source Interfaces](#ip-tacacs-source-interfaces)
   - [RADIUS Servers](#radius-servers)
@@ -35,7 +36,7 @@
 - [Internal VLAN Allocation Policy](#internal-vlan-allocation-policy)
 - [VLANs](#vlans)
 - [Interfaces](#interfaces)
-  - [Interface Defaults](#internet-defaults)
+  - [Interface Defaults](#interface-defaults)
   - [Ethernet Interfaces](#ethernet-interfaces)
   - [Port-Channel Interfaces](#port-channel-interfaces)
   - [Loopback Interfaces](#loopback-interfaces)
@@ -47,6 +48,7 @@
   - [IPv6 Routing](#ipv6-routing)
   - [Static Routes](#static-routes)
   - [IPv6 Static Routes](#ipv6-static-routes)
+  - [Router OSPF](#router-ospf)
   - [Router ISIS](#router-isis)
   - [Router BGP](#router-bgp)
   - [Router BFD](#router-bfd)
@@ -73,6 +75,8 @@
 - [IP DHCP Relay](#ip-dhcp-relay)
 - [Errdisable](#errdisable)
 - [MAC security](#mac-security)
+- [QOS](#qos)
+- [QOS Profiles](#qos-profiles)
 
 # Management
 
@@ -159,6 +163,10 @@ username ansible privilege 15 role network-admin secret sha512 $6$.I7/ZR/zlLIUv8
 username cvpadmin privilege 15 role network-admin secret sha512 $6$.I7/ZR/zlLIUv8fr$vR/JvLTbq5amMt6Y1SE4CKlPDv/AzJYlFYHkUZ17BDovm0Oi4aLdBULe1EmZ0Y9xKjVLMKpxCSKmlrAioDxbQ0
 ```
 
+## Enable Password
+
+Enable password not defined
+
 ## TACACS Servers
 
 ### TACACS Servers
@@ -172,8 +180,8 @@ username cvpadmin privilege 15 role network-admin secret sha512 $6$.I7/ZR/zlLIUv
 
 ```eos
 !
-tacacs-server host 10.10.10.157 vrf mgt  key 7 071B245F5A 
-tacacs-server host 10.10.10.249  key 7 071B245F5A 
+tacacs-server host 10.10.10.157 vrf mgt key 7 071B245F5A
+tacacs-server host 10.10.10.249 key 7 071B245F5A
 ```
 
 ## IP TACACS Source Interfaces
@@ -211,12 +219,21 @@ aaa group server tacacs+ TACACS
 | Login | default | group TACACS local |
 | Login | serial-console | local |
 
+AAA Authentication on-failure log has been enabled
+
+AAA Authentication on-success log has been enabled
+
+Policy local allow-nopassword-remote-login has been enabled.
+
 ### AAA Authentication Device Configuration
 
 ```eos
 !
 aaa authentication login default group TACACS local
 aaa authentication login serial-console local
+aaa authentication policy on-failure log
+aaa authentication policy on-success log
+aaa authentication policy local allow-nopassword-remote-login
 !
 ```
 
@@ -226,14 +243,17 @@ aaa authentication login serial-console local
 
 | Type | User Stores |
 | ---- | ----------- |
-| Exec | local |
+| Exec | group CUST local |
 
 Authorization for configuration commands is enabled.
+
+Authorization for serial console is enabled.
 
 ### AAA Authorization Device Configuration
 
 ```eos
-aaa authorization exec default local
+aaa authorization exec default group CUST local
+aaa authorization serial-console
 !
 ```
 
@@ -354,7 +374,7 @@ IP virtual router MAC address not defined
 
 | VRF | Routing Enabled |
 | --- | --------------- |
-| default | false| 
+| default | false|
 ### IP Routing Device Configuration
 
 ```eos
@@ -379,6 +399,10 @@ IPv6 static routes not defined
 ## ARP
 
 Global ARP timeout not defined.
+
+## Router OSPF
+
+Router OSPF not defined
 
 ## Router ISIS
 
@@ -479,9 +503,18 @@ IP DHCP relay not defined
 # Errdisable
 
 Errdisable is not defined.
+
 # MACsec
 
 MACsec not defined
+
+# QOS
+
+QOS is not defined.
+
+# QOS Profiles
+
+QOS Profiles are not defined
 
 # Custom Templates
 

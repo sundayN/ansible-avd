@@ -13,6 +13,7 @@
   - [Management API](#Management-api-http)
 - [Authentication](#authentication)
   - [Local Users](#local-users)
+  - [Enable Password](#enable-password)
   - [TACACS Servers](#tacacs-servers)
   - [IP TACACS Source Interfaces](#ip-tacacs-source-interfaces)
   - [RADIUS Servers](#radius-servers)
@@ -35,7 +36,7 @@
 - [Internal VLAN Allocation Policy](#internal-vlan-allocation-policy)
 - [VLANs](#vlans)
 - [Interfaces](#interfaces)
-  - [Interface Defaults](#internet-defaults)
+  - [Interface Defaults](#interface-defaults)
   - [Ethernet Interfaces](#ethernet-interfaces)
   - [Port-Channel Interfaces](#port-channel-interfaces)
   - [Loopback Interfaces](#loopback-interfaces)
@@ -47,6 +48,7 @@
   - [IPv6 Routing](#ipv6-routing)
   - [Static Routes](#static-routes)
   - [IPv6 Static Routes](#ipv6-static-routes)
+  - [Router OSPF](#router-ospf)
   - [Router ISIS](#router-isis)
   - [Router BGP](#router-bgp)
   - [Router BFD](#router-bfd)
@@ -73,6 +75,8 @@
 - [IP DHCP Relay](#ip-dhcp-relay)
 - [Errdisable](#errdisable)
 - [MAC security](#mac-security)
+- [QOS](#qos)
+- [QOS Profiles](#qos-profiles)
 
 # Management
 
@@ -143,6 +147,10 @@ Management API HTTP not defined
 ## Local Users
 
 No users defined
+
+## Enable Password
+
+Enable password not defined
 
 ## TACACS Servers
 
@@ -270,7 +278,7 @@ IP virtual router MAC address not defined
 
 | VRF | Routing Enabled |
 | --- | --------------- |
-| default | false| 
+| default | false|
 ### IP Routing Device Configuration
 
 ```eos
@@ -295,6 +303,10 @@ IPv6 static routes not defined
 ## ARP
 
 Global ARP timeout not defined.
+
+## Router OSPF
+
+Router OSPF not defined
 
 ## Router ISIS
 
@@ -376,7 +388,7 @@ Router ISIS not defined
 | VRF | Route-Distinguisher | Redistribute |
 | --- | ------------------- | ------------ |
 | TENANT_A_PROJECT01 | 192.168.255.3:11 | connected |
-| TENANT_A_PROJECT02 | 192.168.255.3:12 | connected |
+| TENANT_A_PROJECT02 | 192.168.255.3:12 | connected  static |
 
 ### Router BGP Device Configuration
 
@@ -408,6 +420,8 @@ router bgp 65101
    neighbor MLAG-IPv4-UNDERLAY-PEER password 7 vnEaG8gMeQf3d3cN6PktXQ==
    neighbor MLAG-IPv4-UNDERLAY-PEER send-community
    neighbor MLAG-IPv4-UNDERLAY-PEER maximum-routes 12000
+   neighbor MLAG-IPv4-UNDERLAY-PEER route-map RM-MLAG-PEER-IN in
+   neighbor MLAG-IPv4-UNDERLAY-PEER route-map RM-MLAG-PEER-OUT out
    neighbor 10.255.251.1 peer group MLAG-IPv4-UNDERLAY-PEER
    neighbor 172.31.255.0 peer group IPv4-UNDERLAY-PEERS
    neighbor 172.31.255.2 peer group IPv4-UNDERLAY-PEERS
@@ -448,6 +462,8 @@ router bgp 65101
       route-target import evpn 11:11
       route-target export evpn 11:11
       router-id 192.168.255.3
+      network 10.0.0.0/8
+      network 100.64.0.0/10
       neighbor 10.255.251.1 peer group MLAG-IPv4-UNDERLAY-PEER
       redistribute connected
    !
@@ -456,8 +472,24 @@ router bgp 65101
       route-target import evpn 12:12
       route-target export evpn 12:12
       router-id 192.168.255.3
+      timers bgp 5 15
       neighbor 10.255.251.1 peer group MLAG-IPv4-UNDERLAY-PEER
+      neighbor 10.255.251.1 description ABCDEFG
+      neighbor 10.255.251.1 next-hop-self
+      neighbor 10.255.251.1 timers 1 3
+      neighbor 10.255.251.1 send-community standard
+      neighbor 10.255.251.2 peer group MLAG-IPv4-UNDERLAY-PEER
+      neighbor 10.255.251.2 description ABCDEFGfg
+      neighbor 10.255.251.2 timers 1 3
+      neighbor 10.255.251.2 send-community 
+      neighbor 10.255.251.3 peer group MLAG-IPv4-UNDERLAY-PEER
+      neighbor 10.255.251.3 description ABCDEFGfgLCLCLCLC
+      neighbor 10.255.251.3 next-hop-self
+      neighbor 10.255.251.3 timers 1 3
+      neighbor 10.255.251.3 send-community link-bandwidth aggregate 2
+      neighbor 10.255.251.3 default-originate always
       redistribute connected
+      redistribute static route-map RM-CONN-2-BGP
 ```
 
 ## Router BFD
@@ -551,9 +583,18 @@ IP DHCP relay not defined
 # Errdisable
 
 Errdisable is not defined.
+
 # MACsec
 
 MACsec not defined
+
+# QOS
+
+QOS is not defined.
+
+# QOS Profiles
+
+QOS Profiles are not defined
 
 # Custom Templates
 

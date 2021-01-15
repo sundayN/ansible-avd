@@ -59,6 +59,8 @@ hostname {{ inventory_hostname }}
 {% include 'eos/sflow.j2' %}
 {# redundancy #}
 {% include 'eos/redundancy.j2' %}
+{# qos-profiles #}
+{% include 'eos/qos-profiles.j2' %}
 {# snmp settings #}
 {% include 'eos/snmp-settings.j2' %}
 {# hardware configuration #}
@@ -79,6 +81,8 @@ hostname {{ inventory_hostname }}
 {% include 'eos/aaa-accounting.j2' %}
 {# aaa root #}
 {% include 'eos/aaa-root.j2' %}
+{# enable password #}
+{% include 'eos/enable-password.j2' %}
 {# users #}
 {% include 'eos/local-users.j2' %}
 {# clock timezone #}
@@ -122,6 +126,8 @@ hostname {{ inventory_hostname }}
 {% include 'eos/ip-routing.j2' %}
 {# IPv6 Routing #}
 {% include 'eos/ipv6-routing.j2' %}
+{# qos #}
+{% include 'eos/qos.j2' %}
 {# IP Extended Communities #}
 {% include 'eos/ip-extended-communities.j2' %}
 {# Prefix-lists #}

@@ -102,7 +102,9 @@ ntp_server:
 redundancy: null
 spanning_tree:
   mode: mstp
-  priority: 4096
+  mst_instances:
+    '0':
+      priority: 4096
   no_spanning_tree_vlan: 4093-4094
 aaa_authorization: null
 local_users:
@@ -401,6 +403,7 @@ vlan_interfaces:
     description: 'MLAG_PEER_L3_iBGP: vrf Tenant_A_APP_Zone'
     vrf: Tenant_A_APP_Zone
     ip_address: 10.255.251.7/31
+    mtu: 1500
   Vlan140:
     tenant: Tenant_A
     tags:
@@ -425,6 +428,7 @@ vlan_interfaces:
     description: 'MLAG_PEER_L3_iBGP: vrf Tenant_A_DB_Zone'
     vrf: Tenant_A_DB_Zone
     ip_address: 10.255.251.7/31
+    mtu: 1500
   Vlan110:
     tenant: Tenant_A
     tags:
@@ -452,6 +456,7 @@ vlan_interfaces:
     description: 'MLAG_PEER_L3_iBGP: vrf Tenant_A_OP_Zone'
     vrf: Tenant_A_OP_Zone
     ip_address: 10.255.251.7/31
+    mtu: 1500
   Vlan150:
     tenant: Tenant_A
     tags:
@@ -467,6 +472,7 @@ vlan_interfaces:
     description: 'MLAG_PEER_L3_iBGP: vrf Tenant_A_WAN_Zone'
     vrf: Tenant_A_WAN_Zone
     ip_address: 10.255.251.7/31
+    mtu: 1500
   Vlan120:
     tenant: Tenant_A
     tags:
@@ -496,6 +502,7 @@ vlan_interfaces:
     description: 'MLAG_PEER_L3_iBGP: vrf Tenant_A_WEB_Zone'
     vrf: Tenant_A_WEB_Zone
     ip_address: 10.255.251.7/31
+    mtu: 1500
   Vlan210:
     tenant: Tenant_B
     tags:
@@ -519,6 +526,7 @@ vlan_interfaces:
     description: 'MLAG_PEER_L3_iBGP: vrf Tenant_B_OP_Zone'
     vrf: Tenant_B_OP_Zone
     ip_address: 10.255.251.7/31
+    mtu: 1500
   Vlan250:
     tenant: Tenant_B
     tags:
@@ -534,6 +542,7 @@ vlan_interfaces:
     description: 'MLAG_PEER_L3_iBGP: vrf Tenant_B_WAN_Zone'
     vrf: Tenant_B_WAN_Zone
     ip_address: 10.255.251.7/31
+    mtu: 1500
   Vlan310:
     tenant: Tenant_C
     tags:
@@ -557,6 +566,7 @@ vlan_interfaces:
     description: 'MLAG_PEER_L3_iBGP: vrf Tenant_C_OP_Zone'
     vrf: Tenant_C_OP_Zone
     ip_address: 10.255.251.7/31
+    mtu: 1500
   Vlan350:
     tenant: Tenant_C
     tags:
@@ -572,6 +582,7 @@ vlan_interfaces:
     description: 'MLAG_PEER_L3_iBGP: vrf Tenant_C_WAN_Zone'
     vrf: Tenant_C_WAN_Zone
     ip_address: 10.255.251.7/31
+    mtu: 1500
 vxlan_tunnel_interface:
   Vxlan1:
     description: DC1-SVC3B_VTEP
@@ -631,6 +642,7 @@ vxlan_tunnel_interface:
         Tenant_C_WAN_Zone:
           vni: 31
 tcam_profile: null
+platform: null
 mac_address_table: null
 ip_virtual_router_mac_address: 00:dc:00:00:00:0a
 virtual_source_nat_vrfs:
@@ -656,10 +668,6 @@ mlag_configuration:
   domain_id: DC1_SVC3
   local_interface: Vlan4094
   peer_address: 10.255.252.6
-  peer_address_heartbeat:
-    peer_ip: 192.168.200.108
-    vrf: MGMT
-  dual_primary_detection_delay: 5
   peer_link: Port-Channel5
   reload_delay_mlag: 300
   reload_delay_non_mlag: 330
@@ -670,6 +678,14 @@ route_maps:
         type: permit
         match:
         - ip address prefix-list PL-LOOPBACKS-EVPN-OVERLAY
+  RM-MLAG-PEER-IN:
+    sequence_numbers:
+      10:
+        type: permit
+        set:
+        - origin incomplete
+        description: Make routes learned over MLAG Peer-link less preferred on spines
+          to ensure optimal routing
 router_bgp:
   as: 65103
   router_id: 192.168.255.9
@@ -691,6 +707,7 @@ router_bgp:
       password: vnEaG8gMeQf3d3cN6PktXQ==
       maximum_routes: 12000
       send_community: true
+      route_map_in: RM-MLAG-PEER-IN
     EVPN-OVERLAY-PEERS:
       type: evpn
       remote_as: 65001
