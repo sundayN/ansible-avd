@@ -127,8 +127,8 @@ Domain-list not defined
 ### Name Servers Device Configuration
 
 ```eos
-ip name-server vrf MGMT 192.168.200.5
 ip name-server vrf MGMT 8.8.8.8
+ip name-server vrf MGMT 192.168.200.5
 ```
 
 ## Domain Lookup
@@ -186,6 +186,7 @@ Management API gnmi is not defined
 ```eos
 !
 management api http-commands
+   protocol https
    no shutdown
    !
    vrf MGMT
@@ -441,24 +442,28 @@ No Interface Defaults defined
 interface Ethernet1
    description P2P_LINK_TO_DC1-SPINE1_Ethernet7
    no shutdown
+   mtu 1500
    no switchport
    ip address 172.31.255.49/31
 !
 interface Ethernet2
    description P2P_LINK_TO_DC1-SPINE2_Ethernet7
    no shutdown
+   mtu 1500
    no switchport
    ip address 172.31.255.51/31
 !
 interface Ethernet3
    description P2P_LINK_TO_DC1-SPINE3_Ethernet7
    no shutdown
+   mtu 1500
    no switchport
    ip address 172.31.255.53/31
 !
 interface Ethernet4
    description P2P_LINK_TO_DC1-SPINE4_Ethernet7
    no shutdown
+   mtu 1500
    no switchport
    ip address 172.31.255.55/31
 !
@@ -586,29 +591,34 @@ interface Vlan350
 interface Vlan3013
    description MLAG_PEER_L3_iBGP: vrf Tenant_A_WAN_Zone
    no shutdown
+   mtu 1500
    vrf Tenant_A_WAN_Zone
    ip address 10.255.251.11/31
 !
 interface Vlan3020
    description MLAG_PEER_L3_iBGP: vrf Tenant_B_WAN_Zone
    no shutdown
+   mtu 1500
    vrf Tenant_B_WAN_Zone
    ip address 10.255.251.11/31
 !
 interface Vlan3030
    description MLAG_PEER_L3_iBGP: vrf Tenant_C_WAN_Zone
    no shutdown
+   mtu 1500
    vrf Tenant_C_WAN_Zone
    ip address 10.255.251.11/31
 !
 interface Vlan4093
    description MLAG_PEER_L3_PEERING
    no shutdown
+   mtu 1500
    ip address 10.255.251.11/31
 !
 interface Vlan4094
    description MLAG_PEER
    no shutdown
+   mtu 1500
    no autostate
    ip address 10.255.252.11/31
 ```
@@ -755,7 +765,6 @@ Router ISIS not defined
 | Settings | Value |
 | -------- | ----- |
 | Address Family | evpn |
-| Remote_as | 65001 |
 | Source | Loopback0 |
 | Bfd | true |
 | Ebgp multihop | 3 |
@@ -790,14 +799,13 @@ Router ISIS not defined
 | 172.31.255.50 | Inherited from peer group IPv4-UNDERLAY-PEERS | default |
 | 172.31.255.52 | Inherited from peer group IPv4-UNDERLAY-PEERS | default |
 | 172.31.255.54 | Inherited from peer group IPv4-UNDERLAY-PEERS | default |
-| 192.168.255.1 | Inherited from peer group EVPN-OVERLAY-PEERS | default |
-| 192.168.255.2 | Inherited from peer group EVPN-OVERLAY-PEERS | default |
-| 192.168.255.3 | Inherited from peer group EVPN-OVERLAY-PEERS | default |
-| 192.168.255.4 | Inherited from peer group EVPN-OVERLAY-PEERS | default |
+| 192.168.255.1 | 65001 | default |
+| 192.168.255.2 | 65001 | default |
+| 192.168.255.3 | 65001 | default |
+| 192.168.255.4 | 65001 | default |
 | 10.255.251.10 | Inherited from peer group MLAG-IPv4-UNDERLAY-PEER | Tenant_A_WAN_Zone |
 | 10.255.251.10 | Inherited from peer group MLAG-IPv4-UNDERLAY-PEER | Tenant_B_WAN_Zone |
 | 10.255.251.10 | Inherited from peer group MLAG-IPv4-UNDERLAY-PEER | Tenant_C_WAN_Zone |
-
 
 ### Router BGP EVPN Address Family
 
@@ -829,7 +837,6 @@ router bgp 65104
    distance bgp 20 200 200
    maximum-paths 4 ecmp 4
    neighbor EVPN-OVERLAY-PEERS peer group
-   neighbor EVPN-OVERLAY-PEERS remote-as 65001
    neighbor EVPN-OVERLAY-PEERS update-source Loopback0
    neighbor EVPN-OVERLAY-PEERS bfd
    neighbor EVPN-OVERLAY-PEERS ebgp-multihop 3
@@ -854,9 +861,17 @@ router bgp 65104
    neighbor 172.31.255.52 peer group IPv4-UNDERLAY-PEERS
    neighbor 172.31.255.54 peer group IPv4-UNDERLAY-PEERS
    neighbor 192.168.255.1 peer group EVPN-OVERLAY-PEERS
+   neighbor 192.168.255.1 remote-as 65001
+   neighbor 192.168.255.1 description DC1-SPINE1
    neighbor 192.168.255.2 peer group EVPN-OVERLAY-PEERS
+   neighbor 192.168.255.2 remote-as 65001
+   neighbor 192.168.255.2 description DC1-SPINE2
    neighbor 192.168.255.3 peer group EVPN-OVERLAY-PEERS
+   neighbor 192.168.255.3 remote-as 65001
+   neighbor 192.168.255.3 description DC1-SPINE3
    neighbor 192.168.255.4 peer group EVPN-OVERLAY-PEERS
+   neighbor 192.168.255.4 remote-as 65001
+   neighbor 192.168.255.4 description DC1-SPINE4
    redistribute connected route-map RM-CONN-2-BGP
    !
    vlan-aware-bundle Tenant_A_WAN_Zone
@@ -879,8 +894,6 @@ router bgp 65104
    !
    address-family evpn
       neighbor EVPN-OVERLAY-PEERS activate
-      no neighbor IPv4-UNDERLAY-PEERS activate
-      no neighbor MLAG-IPv4-UNDERLAY-PEER activate
    !
    address-family ipv4
       no neighbor EVPN-OVERLAY-PEERS activate
